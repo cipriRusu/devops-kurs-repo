@@ -16,5 +16,5 @@ jobs:
       - name: Run the Build Script
         run: ./scripts/build.sh
 
-       - name: Run the Test Script
+      - name: Run the Test Script
         run: ./scripts/test.sh
