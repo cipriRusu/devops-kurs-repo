@@ -9,3 +9,5 @@ test.sh -> 4 individual checks for: Readme existance, .gitignore, checks if buil
 
 ## The failure the pipeline caught
 I have tried removing .gitignore in a first insance, and then README.md and both situations will determine the pipeline to break.
+
+https://github.com/cipriRusu/devops-kurs-repo/actions/runs/37683786057/job/113006242511
