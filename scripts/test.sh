@@ -20,5 +20,7 @@ check ".gitignore exists"        test -f .gitignore
 check "build.sh is executable"   test -x scripts/build.sh
 check "README.md has a heading"  grep -q "^# " README.md
 
-exit "$fail"
+echo "==> Running Waypoint's tests"
+npm test
 
+exit "$fail"
