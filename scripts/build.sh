@@ -13,5 +13,7 @@ for file in README.md .gitignore; do
   test -f "$file" || { echo "Missing: $file"; exit 1; }
 done
 
-echo "Build OK"
+echo "==> Installing the dependencies"
+npm ci
 
+echo "Build OK"
