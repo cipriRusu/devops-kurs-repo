@@ -1,75 +1,164 @@
-# Azure deployment
 
-## What I deployed
-Deployed the current JS web app and serving it on PORT 8080. It has been done using az CLI using a resource group & web application.
+# Azure Deployment
 
-Build logs:
+## 1. What I Deployed
 
-Note: 'az webapp deploy' does not run build automation (dependency installation, compilation, etc.) by default for Linux web apps. If your package is not pre-built, set the app setting SCM_DO_BUILD_DURING_DEPLOYMENT=true to enable builds during deployment.
+Deployed the current JavaScript web application to Azure and configured it to serve traffic on **port 8080**.
+
+The deployment was performed using the **Azure CLI (`az`)**, with an Azure Resource Group and Web App.
+
+### Deployment Logs
+
+> **Note:** `az webapp deploy` does not run build automation (such as dependency installation or compilation) by default for Linux web apps. If the package is not pre-built, set the app setting `SCM_DO_BUILD_DURING_DEPLOYMENT=true` to enable builds during deployment.
+
+```text
 Initiating deployment
 Deploying from local path: artifacts/app.zip
 Warming up Kudu before deployment.
 Warmed up Kudu instance successfully.
-
 ...
+```
 
-You can visit your app at: https://app-waypoint-crusu.azurewebsites.net/
-RuntimeSuccessful
+**Deployment result:** `RuntimeSuccessful`
 
-## What I saw in the log
+**Application URL:** https://app-waypoint-crusu.azurewebsites.net/
 
-Made a few HTTP calls (valid and invalid ones), and checked how the application handles different states/sitations:
+---
 
-After the sucessfull deployment, the working health check works as expected:
+## 2. Application and Log Verification
 
-1. 
-Checking https://app-waypoint-crusu.azurewebsites.net/health
-At most 30 attempts, 5 seconds apart
+I made several HTTP requests, including valid and invalid requests, to verify how the application handles different states and situations. I also checked the application logs to confirm that requests were recorded.
+
+### 2.1 Health Check
+
+**Endpoint:** `/health`
+
+Checked the application with a maximum of 30 attempts, spaced 5 seconds apart.
+
+**Result: Successful**
+
+```text
 OK: the app answered 200 on attempt 1.
+```
 
-Healthcheck works as expected
+The application responded with HTTP `200 OK` on the first attempt.
 
-2. 
-$ curl \
+---
+
+### 2.2 Create a Link — Valid POST Request
+
+**Request:**
+
+```bash
+curl \
   -X POST "$APP_URL/links" \
   -H "Content-Type: application/json" \
   -d '{"targetUrl":"https://example.com"}'
+```
+
+**Response:**
+
+```json
 {
   "code": "lqWpNO",
   "targetUrl": "https://example.com",
   "clicks": 0,
   "createdAt": "2026-10-19T12:46:33.889Z"
 }
+```
 
-A valid link POST returns a valid response
+**Result: Successful**
 
-3.
-curl   -X POST "$APP_URL/links"   -H "Content-Type: application/json"   -d '{"targetUrl":"https://example.com"}'
-
-2026-10-19T12:48:51  Welcome, you are now connected to log-streaming service.
+The application accepted the valid POST request and returned a response containing the generated link code, target URL, click count, and creation timestamp.
 
 ---
+
+### 2.3 Verify Request Logging — Valid POST Request
+
+**Request:**
+
+```bash
+curl \
+  -X POST "$APP_URL/links" \
+  -H "Content-Type: application/json" \
+  -d '{"targetUrl":"https://example.com"}'
+```
+
+**Relevant log output:**
+
+```text
+2026-10-19T12:48:51  Welcome, you are now connected to log-streaming service.
 
 Ending Log Tail of existing logs ---
 Starting Live Log Stream ---
-2026-10-19T12:49:51  No new trace in the past 1 min(s).
-2026-10-19T12:50:36.9456079Z POST /links 201               <--- The logged request
 
-A proper request can be also found in the logs
+2026-10-19T12:49:51  No new trace in the past 1 min(s).
+2026-10-19T12:50:36.9456079Z POST /links 201
+```
+
+**Result: Successful**
+
+The application log contains the `POST /links` request with HTTP status `201 Created`, confirming that a successful link-creation request was logged.
 
 ---
 
-curl   -X GET "$APP_URL"   -H "Content-Type: application/json"   -d '{"targetUrl":"https://example.com"}'
+### 2.4 Verify Request Logging — GET `/`
 
+**Request:**
+
+```bash
+curl \
+  -X GET "$APP_URL" \
+  -H "Content-Type: application/json" \
+  -d '{"targetUrl":"https://example.com"}'
+```
+
+**Relevant log output:**
+
+```text
 2026-10-19T12:50:36.9456079Z POST /links 201
 2026-10-19T12:51:51  No new trace in the past 1 min(s).
 2026-10-19T12:52:51  No new trace in the past 2 min(s).
-2026-10-19T12:53:10.5666846Z GET / 200                     <--- The logged request
+2026-10-19T12:53:10.5666846Z GET / 200
+```
 
-4.
+**Result: Successful**
 
-curl   -X GET "$APP_URL/something"   -H "Content-Type: application/json"   -d '{"targetUrl":"https://example.com"}'
+The log shows a `GET /` request with HTTP status `200 OK`, confirming that the request was recorded.
 
+---
+
+### 2.5 Verify Error Handling — GET `/something`
+
+**Request:**
+
+```bash
+curl \
+  -X GET "$APP_URL/something" \
+  -H "Content-Type: application/json" \
+  -d '{"targetUrl":"https://example.com"}'
+```
+
+**Relevant log output:**
+
+```text
 2026-10-19T12:54:05.4731745Z GET /something 404
+```
 
-A failed request can also be found in the logs
+**Result: Expected error response**
+
+The application returned HTTP `404 Not Found` for the unrecognized `/something` path. The failed request was also recorded in the application logs.
+
+---
+
+## 3. Summary
+
+The deployment and initial verification confirmed the following:
+
+- **Deployment:** The JavaScript web application was deployed to Azure successfully.
+- **Health check:** The `/health` endpoint returned HTTP `200 OK` on the first attempt.
+- **Link creation:** A valid `POST /links` request returned a successful response with the generated link details.
+- **Request logging:** Successful POST and GET requests were visible in the application logs.
+- **Error handling:** A request to an unrecognized endpoint returned HTTP `404 Not Found` and was recorded in the logs.
+
+Overall, the checks demonstrate that the deployed application responds to HTTP requests and that both successful requests and a failed route request can be observed in the application logs.
