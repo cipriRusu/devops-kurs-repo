@@ -2,7 +2,7 @@
 
 ## The chain
 
-Deployment to Azure so far has been handled through manually triggering it through the Azure CLI. The same script now is included in **deploy-app-service.sh** which is further called in the **deploy-app-service-pipeline.yml**. This specific pipeline is triggered on changes merged into the **main** branch of the repository.
+Deployment to Azure so far has been handled through manually triggering it through the Azure CLI. The same script now is included in [**deploy-app-service.sh**](/scripts/deploy-app-service.sh) which is further called in the [**deploy-app-service-pipeline.yml**](/.github/workflows/deploy-app-service-pipeline.yml). This specific pipeline is triggered on changes merged into the **main** branch of the repository.
 
 Opening a pull request has no effect on the deployment process, triggering just the **build-test-pipeline.yml** which makes sure the changes are valid, tests pass and any other quality gates are being set up at this stage.
 
