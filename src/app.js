@@ -7,7 +7,7 @@ import express from 'express'
 const commitFile = new URL('./commit.txt', import.meta.url)
 const COMMIT = existsSync(commitFile) ? readFileSync(commitFile, 'utf8').trim() : null
 
-const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
 function generateCode(length = 6) {
   let code = ''
