@@ -12,6 +12,19 @@ param appServicePlanId string
 @description('Language and version, for example NODE|24-lts.')
 param linuxFxVersion string
 
+@description('Address of the database server: the database module\'s output.')
+param sqlServerFqdn string
+
+@description('Name of the database.')
+param sqlDatabaseName string
+
+@description('Database admin user name. Azure does not allow admin.')
+param sqlAdminLogin string
+
+@secure()
+@description('Database admin password. Never a value in a committed file.')
+param sqlAdminPassword string
+
 resource appService 'Microsoft.Web/sites@2025-03-01' = {
   name: appName
   location: location
@@ -24,6 +37,10 @@ resource appService 'Microsoft.Web/sites@2025-03-01' = {
         {
           name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
           value: 'true'
+        }
+        {
+          name: 'SQL_CONNECTION_STRING'
+          value: 'Server=tcp:${sqlServerFqdn},1433;Database=${sqlDatabaseName};User Id=${sqlAdminLogin};Password=${sqlAdminPassword};Encrypt=true'
         }
       ]
     }
