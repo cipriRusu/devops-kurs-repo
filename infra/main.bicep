@@ -13,12 +13,37 @@ param appName string
 @description('Language and version, for example NODE|24-lts.')
 param linuxFxVersion string
 
+@description('Name of the database server. Part of its address, so it must be unique in all of Azure.')
+param sqlServerName string
+
+@description('Name of the database. Unique on its server.')
+param sqlDatabaseName string
+
+@description('Database admin user name. Azure does not allow admin.')
+param sqlAdminLogin string
+
+@secure()
+@minLength(12)
+@description('Database admin password. Never a value in a committed file.')
+param sqlAdminPassword string
+
 module appServicePlan 'modules/app-service-plan.bicep' = {
   name: 'app-service-plan'
   params: {
     location: location
     planName: planName
     planSku: planSku
+  }
+}
+
+module sqlDatabase 'modules/sql-database.bicep' = {
+  name: 'sql-database'
+  params: {
+    location: location
+    serverName: sqlServerName
+    databaseName: sqlDatabaseName
+    sqlAdminLogin: sqlAdminLogin
+    sqlAdminPassword: sqlAdminPassword
   }
 }
 
@@ -29,6 +54,10 @@ module appService 'modules/app-service.bicep' = {
     appName: appName
     appServicePlanId: appServicePlan.outputs.appServicePlanId
     linuxFxVersion: linuxFxVersion
+    sqlServerFqdn: sqlDatabase.outputs.sqlServerFqdn
+    sqlDatabaseName: sqlDatabase.outputs.sqlDatabaseName
+    sqlAdminLogin: sqlAdminLogin
+    sqlAdminPassword: sqlAdminPassword
   }
 }
 
