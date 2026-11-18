@@ -12,4 +12,6 @@ param sqlServerName = 'sql-waypoint-${name}'
 param sqlDatabaseName = 'sqldb-waypoint-${name}'
 param sqlAdminLogin = 'waypointadmin'
 
+param registryName = 'crwaypoint${name}'
+
 param sqlAdminPassword = readEnvironmentVariable('SQL_ADMIN_PASSWORD')
